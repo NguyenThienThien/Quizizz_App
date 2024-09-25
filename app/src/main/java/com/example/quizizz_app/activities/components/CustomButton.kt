@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quizizz_app.models.AnswerState
@@ -93,5 +96,27 @@ fun getBackgroundColor(answerState: AnswerState): Color {
         AnswerState.INCORRECT -> Color(0xFF9E3332)
         AnswerState.REVEALED_CORRECT -> Color.Transparent
         AnswerState.REVEALED_UNSELECTED -> Color.Transparent
+    }
+}
+
+@Composable
+fun CustomBigButton(
+    onClick: () -> Unit = {},
+    title: String
+){
+    Button(
+        onClick = {
+            onClick()
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xff005595)) // Color: 312064
+    ) {
+        Text(
+            text = title,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
     }
 }
