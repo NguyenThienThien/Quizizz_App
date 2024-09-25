@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "97988974452",
+    "project_id": "quizizzapp-a53aa",
+    "storage_bucket": "quizizzapp-a53aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97988974452:android:78f4cbf01f32a6ae457e21",
+        "android_client_info": {
+          "package_name": "com.example.quizizz_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAw39BLPHyqvH5GWaMRSN4Q6LlxiDKJfYQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
