@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.quizizz_app"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.compose.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -83,4 +84,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
 
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+
+    implementation ("com.sun.mail:android-mail:1.6.2")
+    implementation ("com.sun.mail:android-activation:1.6.2")
 }

@@ -44,6 +44,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,6 +78,7 @@ fun LoginScreen(
     val loginNameFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
     val loginSuccess by loginViewModel.loginSuccess.observeAsState()
     val errorMessage by loginViewModel.errorMessage.observeAsState()
@@ -106,6 +108,11 @@ fun LoginScreen(
 
     Column(
         modifier = Modifier
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    focusManager.clearFocus()
+                }
+            }
             .fillMaxSize()
             .background(Color.White)
             .imePadding(),

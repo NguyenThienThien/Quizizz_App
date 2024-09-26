@@ -102,7 +102,8 @@ fun getBackgroundColor(answerState: AnswerState): Color {
 @Composable
 fun CustomBigButton(
     onClick: () -> Unit = {},
-    title: String
+    title: String,
+    modifier: Modifier = Modifier
 ){
     Button(
         onClick = {

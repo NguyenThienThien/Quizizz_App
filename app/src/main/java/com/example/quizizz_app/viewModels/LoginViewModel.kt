@@ -24,7 +24,7 @@ class LoginViewModel : ViewModel() {
     fun login(context: Context, email: String, password: String) {
         var hasError = false
 
-        // Kiểm tra email trước
+        // Kiểm tra email
         if (email.isEmpty()) {
             _errorMessage.value = "Email không được để trống"
             _emailError.value = true
@@ -37,13 +37,13 @@ class LoginViewModel : ViewModel() {
             _emailError.value = false
         }
 
-        // Nếu đã có lỗi về email, return luôn và không kiểm tra tiếp mật khẩu
+        // Nếu có lỗi email, return
         if (hasError) {
             _loginSuccess.value = false
             return
         }
 
-        // Nếu email không có lỗi, tiếp tục kiểm tra mật khẩu
+        // Kiểm tra mật khẩu
         if (password.isEmpty()) {
             _errorMessage.value = "Mật khẩu không được để trống"
             _passwordError.value = true
@@ -52,7 +52,7 @@ class LoginViewModel : ViewModel() {
             _passwordError.value = false
         }
 
-        // Nếu mật khẩu có lỗi, return
+        // Nếu có lỗi mật khẩu, return
         if (hasError) {
             _loginSuccess.value = false
             return
@@ -62,15 +62,33 @@ class LoginViewModel : ViewModel() {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    saveLoginState(context, true)
-                    _loginSuccess.value = true
-                    _errorMessage.value = "Đăng nhập thành công"
+                    val user = FirebaseAuth.getInstance().currentUser
+                    if (user != null) {
+                        // Kiểm tra xem email đã được xác minh hay chưa
+                        if (user.isEmailVerified) {
+                            // Email đã được xác minh
+                            saveLoginState(context, true)
+                            _loginSuccess.value = true
+                            _errorMessage.value = "Đăng nhập thành công"
+                        } else {
+                            // Email chưa được xác minh
+                            _loginSuccess.value = false
+                            _errorMessage.value = "Email chưa được xác minh. Vui lòng kiểm tra hộp thư của bạn."
+                            FirebaseAuth.getInstance().signOut() // Đăng xuất người dùng để họ không truy cập được
+                        }
+                    } else {
+                        // Trường hợp người dùng là null (đăng nhập không thành công)
+                        _loginSuccess.value = false
+                        _errorMessage.value = "Đăng nhập thất bại, vui lòng thử lại"
+                    }
                 } else {
+                    // Đăng nhập thất bại do sai email hoặc mật khẩu
                     _loginSuccess.value = false
-                    _errorMessage.value = "Đăng nhập thất bại sai tài khoản hoặc mật khẩu"
+                    _errorMessage.value = "Đăng nhập thất bại: sai tài khoản hoặc mật khẩu"
                 }
             }
     }
+
 
     // Reset lại thông báo lỗi sau khi hiển thị
     fun resetErrorMessage() {
