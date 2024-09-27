@@ -88,7 +88,9 @@ fun LoginScreen(
     LaunchedEffect(loginSuccess, errorMessage) {
         if (loginSuccess == true) {
             Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
-            navController.navigate("HomeScreen")
+            navController.navigate("HomeScreen"){
+                popUpTo("LoginScreen") { inclusive = true }
+            }
         } else {
             errorMessage?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()

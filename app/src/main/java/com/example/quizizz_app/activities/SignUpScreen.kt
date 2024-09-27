@@ -88,7 +88,7 @@ fun SignUpScreen(
 
     LaunchedEffect(signUpSuccess, errorMessage) {
         if (signUpSuccess == true) {
-            Toast.makeText(context, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Vui lòng kiểm tra email để xác minh tài khoản", Toast.LENGTH_SHORT).show()
             navController.navigate("LoginScreen")
         } else {
             errorMessage?.let {

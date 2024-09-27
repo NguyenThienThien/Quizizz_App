@@ -4,16 +4,20 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,16 +40,15 @@ import coil.request.ImageRequest
 import com.example.quizizz_app.R
 
 @Composable
-fun InstructUps(modifier: Modifier, textInstruct: String, contentInstruct: String) {
-    Row {
-
+fun InstructUps(modifier: Modifier, stateOfLesson: String) {
+    Row(modifier = modifier.fillMaxWidth().wrapContentSize(align = Alignment.Center)) {
         CircleAvatar(
             image = painterResource(id = R.drawable.petsss),
             height = (LocalConfiguration.current.screenWidthDp * 0.2f).dp,
             borderCircle = 2.dp
         )
         Spacer(modifier = Modifier.width(5.dp))
-        val imagePainter = painterResource(id = R.drawable.unionbg) // Replace with your image URL
+        val imagePainter = painterResource(id = R.drawable.unionbg)
 
         InstructUpsImageBackground(
             imagePainter = imagePainter,
@@ -58,21 +62,40 @@ fun InstructUps(modifier: Modifier, textInstruct: String, contentInstruct: Strin
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = textInstruct,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 9.sp),
-                    color = Color(0xff4553B7)
-                )
-                Text(
-                    text = contentInstruct,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 14.sp,
-                        lineHeight = 17.sp,
 
-                        ),
-                    maxLines = 2,
-                    color = Color(0xff111245)
-                )
+                when (stateOfLesson) {
+                    "default" -> {
+                        ContentDescription(
+                            titleInstruct = "Hướng dẫn",
+                            descriptionInstruct = "Chọn hoặc kéo đáp án úng với nghĩa của từ Tiếng Anh",
+                            isShowIcon = false,
+                            onClickIconHelp = { },
+                            onClickIconChat = { }
+                        )
+                    }
+
+                    "true" -> {
+                        ContentDescription(
+                            titleInstruct = "Kết quả",
+                            descriptionInstruct = "Chọn đúng rồi cố lên bạn ơi !",
+                            isShowIcon = true,
+                            onClickIconHelp = { },
+                            onClickIconChat = { }
+                        )
+                    }
+
+                    "false" -> {
+                        ContentDescription(
+                            titleInstruct = "Kết quả",
+                            descriptionInstruct = "Bạn chọn sai mất rồi...",
+                            isShowIcon = true,
+                            onClickIconHelp = { },
+                            onClickIconChat = { }
+                        )
+                    }
+                }
+
+
             }
         }
 
@@ -145,6 +168,66 @@ fun InstructUpsImageBackground(
             contentAlignment = Alignment.CenterStart
         ) {
             content()
+        }
+    }
+}
+
+@Composable
+fun ContentDescription(
+    modifier: Modifier = Modifier,
+    titleInstruct: String,
+    descriptionInstruct: String,
+    isShowIcon: Boolean,
+    onClickIconHelp: () -> Unit,
+    onClickIconChat: () -> Unit
+) {
+    Column(
+        modifier = modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
+    ) {
+
+        Text(
+            text = titleInstruct, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 9.sp),
+            color = Color(0xff4553B7)
+        )
+
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(
+                modifier = modifier.weight(if (isShowIcon) 7f else 1f),
+                text = descriptionInstruct,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 14.sp,
+                    lineHeight = 17.sp
+                ),
+                color = Color(0xff111245),
+                textAlign = TextAlign.Start
+            )
+
+            if (isShowIcon) {
+                Image(
+                    modifier = modifier
+                        .weight(1.5f)
+                        .clickable {
+                            onClickIconHelp()
+                        },
+                    painter = painterResource(id = R.drawable.help),
+                    contentDescription = "Icon Help"
+                )
+                Image(
+                    modifier = modifier
+                        .weight(1.5f)
+                        .clickable {
+                            onClickIconChat()
+                        },
+                    painter = painterResource(id = R.drawable.chat),
+                    contentDescription = "Icon Chat"
+                )
+            }
         }
     }
 }

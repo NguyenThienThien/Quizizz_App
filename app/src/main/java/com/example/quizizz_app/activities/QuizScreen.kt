@@ -1,5 +1,6 @@
 package com.example.quizizz_app.activities
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -41,8 +43,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.quizizz_app.R
 import com.example.quizizz_app.activities.components.AnswerButton
+import com.example.quizizz_app.activities.components.DialogConfirmExit
 import com.example.quizizz_app.activities.components.ImageAudio
 import com.example.quizizz_app.activities.components.InstructUps
 import com.example.quizizz_app.activities.components.TopAppBarItem
@@ -52,14 +56,53 @@ import com.example.quizizz_app.viewModels.QuizViewModel
 
 @Composable
 fun QuizScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
-    quizViewModel: QuizViewModel = viewModel()
+    quizViewModel: QuizViewModel = viewModel(),
 ) {
     val listQuestion by quizViewModel.question.observeAsState(emptyList())
     val isLoading by quizViewModel.isLoading.observeAsState(true)
     val currentQuestionIndex by quizViewModel.currentQuestionIndex.observeAsState(0)
     val selectedChoice by quizViewModel.selectedChoice.observeAsState(null)
     val answerChecked by quizViewModel.answerChecked.observeAsState(false)
+
+    var backPressedOnce by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+
+    // BackHandler để lắng nghe sự kiện nhấn nút Back
+    BackHandler {
+        if (backPressedOnce) {
+            // Hiển thị Dialog nếu đã nhấn Back lần thứ hai
+            showDialog = true
+        } else {
+            // Đánh dấu là đã nhấn Back lần đầu
+            backPressedOnce = true
+        }
+    }
+
+    // Tắt trạng thái Back lần đầu sau một khoảng thời gian
+    LaunchedEffect(backPressedOnce) {
+        if (backPressedOnce) {
+            kotlinx.coroutines.delay(2000L) // 2 giây để reset trạng thái
+            backPressedOnce = false
+        }
+    }
+
+    // Hiển thị dialog xác nhận thoát
+    if (showDialog) {
+        DialogConfirmExit(
+            onDismiss = { showDialog = false },
+            onClick = {
+                navController.popBackStack() // Quay về màn hình trước
+            }
+        )
+    }
+
+    val stateOfLesson = when {
+        answerChecked && listQuestion[currentQuestionIndex].choices.any { it.isCorrect && it.answerState == AnswerState.CORRECT } -> "true"
+        answerChecked && listQuestion[currentQuestionIndex].choices.any { it.answerState == AnswerState.INCORRECT } -> "false"
+        else -> "default"
+    }
 
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -114,7 +157,14 @@ fun QuizScreen(
                             if (!answerChecked) {
                                 quizViewModel.checkAnswer()
                             } else {
-                                quizViewModel.nextQuestion()
+                                if (currentQuestionIndex < listQuestion.size - 1) {
+                                    quizViewModel.nextQuestion()
+                                } else {
+                                    // Nếu đã hoàn thành quiz, điều hướng về màn hình Home
+                                    navController.navigate("HomeScreen"){
+                                        popUpTo("QuizScreen") { inclusive = true }
+                                    }
+                                }
                             }
                         }
                         .padding(17.dp),
@@ -133,9 +183,8 @@ fun QuizScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 InstructUps(
-                    modifier = Modifier.fillMaxWidth(),
-                    textInstruct = "Hướng dẫn",
-                    contentInstruct = "Chọn hoặc kéo đáp án đúng với nghĩa của từ tiếng Anh"
+                    modifier = modifier.padding(top = 10.dp),
+                    stateOfLesson = stateOfLesson
                 )
                 Spacer(modifier = Modifier.padding(10.dp))
                 ImageAudio(
