@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.quizizz_app.R
 import com.example.quizizz_app.models.QuizResult
 
@@ -93,19 +95,22 @@ fun ItemRankUser(
     index: Int,
     selectedChooseRank: String,
     currentUserId: String
-){
+) {
+    var isImageLoading by remember { mutableStateOf(true) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Hiển thị vị trí xếp hạng
         Box(
             modifier = Modifier
                 .border(1.dp, if (quizResult.userId == currentUserId) Color(0xff191837) else Color.Transparent, RoundedCornerShape(50.dp))
                 .size(40.dp),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Text(
                 text = "${index + 1}",
                 style = MaterialTheme.typography.bodyLarge.copy(
@@ -116,53 +121,83 @@ fun ItemRankUser(
                 color = Color(0xff797a99),
             )
         }
+
         Spacer(modifier = Modifier.padding(12.dp)) // Khoảng cách giữa ảnh và tên người chơi
-        if (quizResult.imageUrl != "") {
-            AsyncImage(
-                model = quizResult.imageUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(Color.White),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            // Hiển thị icon khác nếu imageUrl là null
-            Image(
-                painter = painterResource(id = R.drawable.petsss) ,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(Color.White)
-            )
+
+        // Hiển thị ảnh người dùng hoặc icon mặc định
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .clip(RoundedCornerShape(50.dp))
+                .background(Color.LightGray),
+            contentAlignment = Alignment.Center
+        ) {
+            if (quizResult.imageUrl!!.isNotEmpty()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(quizResult.imageUrl)
+                        .crossfade(true)
+                        .listener(
+                            onSuccess = { _, _ -> isImageLoading = false },
+                            onError = { _, _ -> isImageLoading = false }
+                        )
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // Hiển thị icon nếu không có URL ảnh
+                isImageLoading = false
+                Image(
+                    painter = painterResource(id = R.drawable.petsss),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            // Hiển thị CircularProgressIndicator khi đang tải ảnh
+            if (isImageLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent, RoundedCornerShape(50.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xff4169E1))
+                }
+            }
         }
-        val value = when (selectedChooseRank) {
-            "Điểm cao nhất" -> quizResult.score.toString()
-            "Chuỗi trả lời" -> quizResult.highestStreak.toString()
-            "Tổng câu đúng" -> quizResult.totalCorrectAnswers.toString()
-            else -> ""
-        }
+
+        // Hiển thị thông tin người chơi
         Spacer(modifier = Modifier.padding(10.dp))
         Column {
             Text(
-                text = "${quizResult.userName}",
+                text = quizResult.userName!!,
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 color = Color(0xff191837),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.padding(4.dp))
+
+            val value = when (selectedChooseRank) {
+                "Điểm cao nhất" -> quizResult.score.toString()
+                "Chuỗi trả lời" -> quizResult.highestStreak.toString()
+                "Tổng câu đúng" -> quizResult.totalCorrectAnswers.toString()
+                else -> ""
+            }
+
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color(0xff191837)
             )
         }
-
     }
 }
+
 
 //@Composable
 //@Preview
