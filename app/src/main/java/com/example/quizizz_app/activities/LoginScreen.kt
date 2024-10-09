@@ -173,7 +173,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = {
-
+                            navController.navigate("ForgotPasswordScreen")
                         })
                     }
                     .align(Alignment.End)

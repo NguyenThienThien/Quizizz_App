@@ -8,5 +8,6 @@ enum class ScreenName(val route: String) {
     QuizScreen("QuizScreen"),
     ResultScreen("ResultScreen"),
     RankScreen("RankScreen"),
-    ChangeInformationScreen("ChangeInformationScreen")
+    ChangeInformationScreen("ChangeInformationScreen"),
+    ForgotPasswordScreen("ForgotPasswordScreen"),
 }

@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.quizizz_app.activities.ChangeInformation
+import com.example.quizizz_app.activities.ForgotPassWordScreen
 import com.example.quizizz_app.activities.HomeScreen
 import com.example.quizizz_app.activities.LoginScreen
 import com.example.quizizz_app.activities.QuizScreen
@@ -48,5 +49,6 @@ fun ScreenNavigation(){
 
         composable(ScreenName.RankScreen.route){ RankScreen(navController = navController) }
         composable(ScreenName.ChangeInformationScreen.route){ ChangeInformation(navController = navController) }
+        composable(ScreenName.ForgotPasswordScreen.route) { ForgotPassWordScreen(navController = navController) }
     }
 }
