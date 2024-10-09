@@ -1,7 +1,5 @@
 package com.example.quizizz_app.models
 
-import android.util.Log
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.PropertyName
 
 enum class Category {
@@ -20,7 +18,6 @@ data class Question(
     var choices: List<Choice> = emptyList(),
     val correctAnswer: String = "", //Đáp án đúng
     val imageUrl: String = "",
-    val phoneticRepresentation: String = ""
 )
 
 data class Choice(
@@ -29,14 +26,6 @@ data class Choice(
     @get:PropertyName("isCorrect")
     val isCorrect: Boolean = false, // Đánh dấu đúng/sai
     var answerState: AnswerState = AnswerState.UNSELECTED // Thêm trạng thái của lựa chọn
-)
-
-data class Answer(
-    val answerID: String = "",
-    val questionID: String = "",
-    val selectedChoice: String = "", // Lựa chọn được người chơi chọn
-    val isCorrect: Boolean = false, //Kết quả câu trả lời đúng hay sai
-    val answerTime: Long = 0L
 )
 
 enum class AnswerState {

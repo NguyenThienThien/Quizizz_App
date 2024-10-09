@@ -98,7 +98,7 @@ fun ButtonItem(
                     Text(
                         text = titleButton,
                         style = MaterialTheme.typography.displayMedium.copy(
-                            lineHeight = 26.sp
+                            fontSize = 24.sp
                         ),
                         color = textColor,
                         textAlign = TextAlign.Start

@@ -1,5 +1,6 @@
 package com.example.quizizz_app.activities.components
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EgTopAppBar(
-    @StringRes titleRes: String,
+    @SuppressLint("SupportAnnotationUsage") @StringRes titleRes: String,
     navigationIcon: ImageVector,
     navigationIconContentDescription: String?,
     actionIcon: ImageVector?,

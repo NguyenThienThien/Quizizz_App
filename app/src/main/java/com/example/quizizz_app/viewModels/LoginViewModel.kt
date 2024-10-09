@@ -66,8 +66,8 @@ class LoginViewModel : ViewModel() {
                     if (user != null) {
                         // Kiểm tra xem email đã được xác minh hay chưa
                         if (user.isEmailVerified) {
-                            // Email đã được xác minh
-                            saveLoginState(context, true)
+                            val userId = user.uid // Lấy userId từ Firebase
+                            saveLoginState(context, true, userId) // Lưu userId vào SharedPreferences
                             _loginSuccess.value = true
                             _errorMessage.value = "Đăng nhập thành công"
                         } else {

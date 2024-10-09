@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quizizz_app.models.AnswerState
 import com.example.quizizz_app.models.Question
+import com.example.quizizz_app.models.QuizResult
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -29,8 +30,23 @@ class QuizViewModel : ViewModel() {
     private val _answerChecked = MutableLiveData(false)
     val answerChecked: LiveData<Boolean> = _answerChecked
 
+    private val _score = MutableLiveData(0)
+    val score: LiveData<Int> = _score
+
+    private val _correctStreak = MutableLiveData(0)
+    val correctStreak: LiveData<Int> = _correctStreak
+
+    // lưu trữ chuỗi cao nhất mà người chơi đạt đuơc
+    private val _highestStreak = MutableLiveData(0)
+    val highestStreak: LiveData<Int> = _highestStreak
+
+    // lưu trữ tổng số câu trả lời đúng
+    private val _totalCorrectAnswers = MutableLiveData(0)
+    val totalCorrectAnswers: LiveData<Int> = _totalCorrectAnswers
+
     private val database = FirebaseDatabase.getInstance()
     private val questionRef = database.getReference("Questions")
+    private val quizResultRef = database.getReference("QuizResults")
 
     init {
         fetchQuestions()
@@ -60,7 +76,6 @@ class QuizViewModel : ViewModel() {
         }
     }
 
-
     fun selectChoice(choiceID: String) {
         if (_answerChecked.value == true) return // Không cho phép chọn lại nếu đã kiểm tra
 
@@ -84,8 +99,24 @@ class QuizViewModel : ViewModel() {
 
         currentQuestion?.choices?.forEach { choice ->
             choice.answerState = when {
-                choice.choiceID == selected && choice.isCorrect -> AnswerState.CORRECT
-                choice.choiceID == selected -> AnswerState.INCORRECT
+                choice.choiceID == selected && choice.isCorrect -> {
+                    _correctStreak.value = _correctStreak.value?.plus(1) // Tăng chuỗi đúng liên tiếp
+                    updateScore(_correctStreak.value ?: 0) // Cập nhật điểm dựa trên chuỗi
+                    _totalCorrectAnswers.value = _totalCorrectAnswers.value?.plus(1)
+                    // Cập nhật chuỗi cao nhất nếu chuỗi hiện tại lớn hơn
+                    if ((_correctStreak.value ?: 0) > (_highestStreak.value ?: 0)) {
+                        _highestStreak.value = _correctStreak.value
+                    }
+
+                    AnswerState.CORRECT
+                }
+                choice.choiceID == selected -> {
+                    if ((_score.value ?: 0) > 0) {
+                        _score.value = (_score.value ?: 0) - 1 // Trừ điểm nếu sai nhưng không âm
+                    }
+                    _correctStreak.value = 0 // Reset chuỗi nếu sai
+                    AnswerState.INCORRECT
+                }
                 choice.isCorrect -> AnswerState.REVEALED_CORRECT
                 else -> AnswerState.REVEALED_UNSELECTED
             }
@@ -98,5 +129,38 @@ class QuizViewModel : ViewModel() {
             _selectedChoice.value = null
             _answerChecked.value = false
         }
+    }
+
+    private fun updateScore(streak: Int) {
+        when {
+            streak in 1..5 -> _score.value = _score.value?.plus(2) // Từ câu 1-20: 2 điểm/câu
+            streak in 6..10 -> _score.value = _score.value?.plus(3) // Từ câu 21-50: 3 điểm/câu
+            streak > 10 -> _score.value = _score.value?.plus(4) // Từ câu 51 trở lên: 4 điểm/câu
+        }
+    }
+
+    // Hàm lưu kết quả quiz
+    fun saveQuizResult(quizId: String, userId: String, score: Int, highestStreak: Int, totalCorrectAnswers: Int, imageUrl: String?, userName: String) {
+        val quizResultId = quizResultRef.push().key ?: return
+
+        val quizResult = QuizResult(
+            quizResultId = quizResultId,
+            userId = userId,
+            userName = userName,
+            quizId = quizId,
+            score = score,
+            highestStreak = highestStreak,
+            totalCorrectAnswers = totalCorrectAnswers,
+            dateCompleted = System.currentTimeMillis(),
+            imageUrl = imageUrl
+        )
+
+        quizResultRef.child(quizResultId).setValue(quizResult)
+            .addOnSuccessListener {
+                Log.d("ResultStudy", "Quiz result saved successfully")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ResultStudy", "Error saving quiz result", exception)
+            }
     }
 }

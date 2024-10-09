@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.example.quizizz_app.activities.LoginOther
+import com.example.quizizz_app.activities.RankScreen
 import com.example.quizizz_app.navigation.ScreenNavigation
 import com.example.quizizz_app.ui.theme.Quizizz_AppTheme
 
@@ -14,6 +16,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             Quizizz_AppTheme {
                 ScreenNavigation()
+//                LoginOther()
+//                RankScreen()
             }
         }
     }

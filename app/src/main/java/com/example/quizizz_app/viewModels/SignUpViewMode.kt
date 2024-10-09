@@ -1,10 +1,12 @@
 package com.example.quizizz_app.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class SignUpViewModel : ViewModel() {
 
@@ -22,6 +24,9 @@ class SignUpViewModel : ViewModel() {
 
     private val _rePasswordError = MutableLiveData<Boolean>()
     val rePasswordError: LiveData<Boolean> = _rePasswordError
+
+    private val database = FirebaseDatabase.getInstance()
+    private val userRef = database.getReference("Users")
 
     fun signUp(context: Context, email: String, password: String, rePassword: String) {
         var errorMessage: String? = null
@@ -83,11 +88,12 @@ class SignUpViewModel : ViewModel() {
                             // Gửi email xác thực thành công
                             _signUpSuccess.value = true
                             _errorMessage.value = "Vui lòng kiểm tra email để xác minh tài khoản"
+                            val userId = user.uid
+                            addUserToDatabase(userId, email)
                         } else {
                             // Gửi email xác thực thất bại
                             _signUpSuccess.value = false
-                            _errorMessage.value =
-                                "Không thể gửi email xác minh: ${verificationTask.exception?.message}"
+                            _errorMessage.value = "Không thể gửi email xác minh: ${verificationTask.exception?.message}"
                         }
                     }
                 } else {
@@ -101,5 +107,24 @@ class SignUpViewModel : ViewModel() {
     // Reset lại thông báo lỗi sau khi hiển thị
     fun resetErrorMessage() {
         _errorMessage.value = null
+    }
+
+    private fun addUserToDatabase(userId: String, email: String){
+        val user = mapOf(
+            "userId" to userId,
+            "userName" to userId,
+            "userEmail" to email,
+            "imgUrl" to "",
+            "score" to 0,
+            "maxStreak" to 0,
+            "totalCorrectAnswers" to 0
+        )
+
+        userRef.child(userId).setValue(user)
+            .addOnCompleteListener { task ->
+                if(task.isSuccessful){
+                    Log.d("SignUpScreen", "addUserToDatabase: $user")
+                }
+            }
     }
 }

@@ -3,13 +3,22 @@ package com.example.quizizz_app.utils
 import android.content.Context
 import android.content.SharedPreferences
 
-fun saveLoginState(context: Context, isLoggedIn: Boolean) {
+fun saveLoginState(context: Context, isLoggedIn: Boolean, userId: String?) {
     val sharedPreferences: SharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
     val editor: SharedPreferences.Editor = sharedPreferences.edit()
+
+    // Lưu trạng thái đăng nhập
     editor.putBoolean("isLoggedIn", isLoggedIn)
+
+    // Nếu đăng nhập thành công, lưu userId
+    if (isLoggedIn && userId != null) {
+        editor.putString("userId", userId)
+    } else {
+        editor.remove("userId") // Xóa userId khi đăng xuất
+    }
+
     editor.apply()
 }
-
 
 fun isLoggedIn(context: Context): Boolean {
     val sharedPreferences: SharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
@@ -65,6 +74,12 @@ fun checkAndSaveTrialExpired(context: Context): Boolean {
 
     return isExpired
 }
+
+fun getUserId(context: Context): String? {
+    val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+    return sharedPreferences.getString("userId", null) // Trả về userId hoặc null nếu không tồn tại
+}
+
 
 
 

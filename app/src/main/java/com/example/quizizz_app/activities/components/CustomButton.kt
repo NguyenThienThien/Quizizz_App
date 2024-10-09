@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quizizz_app.models.AnswerState
@@ -72,7 +73,8 @@ fun AnswerButton(
             Text(
                 text = answerText,
                 style = MaterialTheme.typography.headlineMedium.copy(
-                    fontSize = if (isQuizChecked) 20.sp else 17.sp // Tăng kích thước font nếu đã chọn
+                    fontSize = if (isQuizChecked) 20.sp else 17.sp, // Tăng kích thước font nếu đã chọn
+                    textAlign = TextAlign.Center
                 ),
                 color = Color(0xff111245)
             )
